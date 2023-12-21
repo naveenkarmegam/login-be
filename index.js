@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');;
 const cors = require('cors');
 const dotenv = require('dotenv').config();
-const { MongoClient, ObjectId } = require('mongodb')
+const { MongoClient} = require('mongodb')
 const app = express();
 const URL = process.env.DB
 const secretKey = process.env.JWT_SECRET
@@ -12,7 +12,7 @@ const nodemailer = require("nodemailer");
 
 app.use(express.json());
 app.use(cors({
-    origin: '*'
+    origin: [process.env.CILENT_URL || 'http://localhost:5173']
 }));
 app.get('/', (req, res) => {
     res.send(`<h1> server checking route </h1>`)
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
  
 app.post('/register', async (req, res) => {
     try {
-        const { firstName, lastName, email, password, confirmPassword } = req.body
+        const { firstName, lastName, email, password} = req.body
         const hashedPassword = await bcrypt.hash(password, 10);
         const connection = await MongoClient.connect(URL)
         const db = connection.db("users")
@@ -43,9 +43,7 @@ app.post('/register', async (req, res) => {
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Please provide email and password.' });
-        }
+    
         const connection = await MongoClient.connect(URL)
         const db = connection.db("users")
         const user = await db.collection("Registered").findOne({ email })
@@ -87,7 +85,7 @@ app.post('/forget-password', async (req, res) => {
         const transporter = nodemailer.createTransport({ 
             service: 'gmail',
             auth: {
-                user: process.env.mail,
+                user: process.env.MAIL_ID,
                 pass: process.env.OUTLOOK_PASSWORD,
             },
         });
@@ -96,7 +94,7 @@ app.post('/forget-password', async (req, res) => {
             from: process.env.mail,
             to: email,
             subject: 'Reset password link',
-            text: `Click the following link to reset your password: https://naveen-login-register.netlify.app/reset-password/${token}`
+            text: `Click the following link to reset your password: ${process.env.CILENT_URL}/reset-password/${token}`
         });
 
         res.status(200).json({ message: 'Password reset link sent successfully.' });
