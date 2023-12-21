@@ -34,7 +34,7 @@ app.post('/register', async (req, res) => {
         const token = jsonwebtoken.sign({ userId: result.insertedId }, secretKey, { expiresIn: '1h' });
         res.status(201).json({ message: 'Registration successful', newUser, token });
         connection.close()
-    } catch (error) {
+    } catch (error) { 
         console.log(error);
         res.status(500).json({ message: 'Internal Server Error' });
 
@@ -88,8 +88,8 @@ app.post("/forget-password", async (req, res) => {
         const transporter = nodemailer.createTransport({
             host: process.env.host,
             port: process.env.SMTP_PORT,
-            secure: false,
-            auth: {
+            // secure: false,
+            auth: { 
                 user: process.env.mail,
                 pass: process.env.OUTLOOK_PASSWORD,
             },
@@ -98,7 +98,7 @@ app.post("/forget-password", async (req, res) => {
             },
 
         });
-        const main = async () => {
+        const main = async () => { 
             try {
                 const info = await transporter.sendMail({
                     from: "dnelsona@outlook.com",
