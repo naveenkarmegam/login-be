@@ -17,7 +17,7 @@ app.use(cors({
 app.get('/', (req, res) => {
     res.send(`<h1> server checking route </h1>`)
 })
-
+ 
 app.post('/register', async (req, res) => {
     try {
         const { firstName, lastName, email, password, confirmPassword } = req.body
@@ -42,7 +42,7 @@ app.post('/register', async (req, res) => {
 })
 app.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = req.body 
         if (!email || !password) {
             return res.status(400).json({ message: 'Please provide email and password.' });
         }
