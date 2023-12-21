@@ -65,59 +65,46 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.post("/forget-password", async (req, res) => {
+app.post('/forget-password', async (req, res) => {
     try {
-
-        const { email } = req.body
-        const connection = await MongoClient.connect(URL)
-        const db = connection.db("users")
-        const user = await db.collection("Registered").findOne({ email })
+        const { email } = req.body;
+        const connection = await MongoClient.connect(URL);
+        const db = connection.db('users');
+        const user = await db.collection('Registered').findOne({ email });
 
         if (!user) {
-            res.status(404).json({ message: "User not registered" })
+            res.status(404).json({ message: 'User not registered' });
         }
-        const token = jsonwebtoken.sign({ id: user._id }, secretKey, { expiresIn: '1hr' })
 
-        await db.collection("Registered").updateOne({ email }, {
-            $set: {
-                token
-            }
-        })
-        connection.close()
+        const token = jsonwebtoken.sign({ id: user._id }, secretKey, { expiresIn: '1hr' });
 
-        const transporter = nodemailer.createTransport({
-            host: process.env.host,
-            port: process.env.SMTP_PORT,
-            // secure: false,
-            auth: { 
+        await db.collection('Registered').updateOne({ email }, {
+            $set: { token }
+        });
+
+        connection.close();
+
+        const transporter = nodemailer.createTransport({ 
+            service: 'gmail',
+            auth: {
                 user: process.env.mail,
                 pass: process.env.OUTLOOK_PASSWORD,
             },
-            tls: {
-                ciphers: 'SSLv3',
-            },
-
         });
-        const main = async () => { 
-            try {
-                const info = await transporter.sendMail({
-                    from: "dnelsona@outlook.com",
-                    to: email,
-                    subject: "Reset password link",
-                    text: `Click the following link to reset your password: https://naveen-login-register.netlify.app/reset-password/${token}`
-                });
-                res.status(200).json({ message: "Password reset link sent successfully." });
 
-            } catch (error) {
-                console.log(error);
-                res.status(500).json({ message: "Failed to send password reset email." });
-            }
-        };
-        await main();
+        const info = await transporter.sendMail({
+            from: process.env.mail,
+            to: email,
+            subject: 'Reset password link',
+            text: `Click the following link to reset your password: https://naveen-login-register.netlify.app/reset-password/${token}`
+        });
+
+        res.status(200).json({ message: 'Password reset link sent successfully.' });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).json({ message: 'Failed to send password reset email.' });
     }
-})
+});
 
 app.post("/reset-password/:token", async (req, res) => {
     try {
