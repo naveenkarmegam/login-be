@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(cors({
     origin: '*'
 }));
-
 app.get('/', (req, res) => {
     res.send(`<h1> server checking route </h1>`)
 })
