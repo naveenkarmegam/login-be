@@ -12,7 +12,7 @@ const nodemailer = require("nodemailer");
 
 app.use(express.json());
 app.use(cors({
-    origin: [process.env.CILENT_URL || 'http://localhost:5173']
+    origin: "*"
 }));
 app.get('/', (req, res) => {
     res.send(`<h1> server checking route </h1>`)
@@ -91,7 +91,7 @@ app.post('/forget-password', async (req, res) => {
         });
 
         const info = await transporter.sendMail({
-            from: process.env.mail,
+            from: process.env.MAIL_ID,
             to: email,
             subject: 'Reset password link',
             text: `Click the following link to reset your password: ${process.env.CILENT_URL}/reset-password/${token}`
